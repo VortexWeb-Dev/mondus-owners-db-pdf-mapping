@@ -228,120 +228,175 @@ class ItemTable {
 
   async downloadPDF(id) {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/crm.item.get?id=${id}&entityTypeId=${entityTypeId}`
-      );
-      const result = await response.json();
+        const response = await fetch(`${API_BASE_URL}/crm.item.get?id=${id}&entityTypeId=${entityTypeId}`);
+        const result = await response.json();
 
-      if (!result.result || !result.result.item) {
-        this.showToast("Item not found");
-        return;
-      }
-
-      const item = result.result.item;
-      console.log(item);
-
-      if (typeof window.jspdf === "undefined") {
-        this.showToast("PDF library not loaded", "error");
-        return;
-      }
-
-      const doc = new window.jspdf.jsPDF();
-
-      doc.setFontSize(18);
-      doc.text("Property Details", 105, 15, { align: "center" });
-
-      doc.setFontSize(12);
-      doc.text("MONDUS GROUP", 105, 25, { align: "center" });
-
-      doc.setFontSize(11);
-      doc.setDrawColor(0);
-      doc.setFillColor(240, 240, 240);
-      doc.rect(14, 35, 182, 8, "F");
-      doc.setFont(undefined, "bold");
-      doc.text("PROPERTY INFORMATION", 16, 40);
-
-      doc.setFont(undefined, "normal");
-      let y = 50;
-
-      doc.text(`ID: ${item.id}`, 16, y);
-      y += 8;
-      doc.text(`Title: ${item.title || "N/A"}`, 16, y);
-      y += 8;
-
-      const emirate = this.mapEmirate(item.ufCrm8_1741421077583);
-      doc.text(`Emirate: ${emirate || "N/A"}`, 16, y);
-      y += 8;
-      doc.text(`Building: ${item.ufCrm8_1741422864945 || "N/A"}`, 16, y);
-      y += 8;
-      doc.text(`Address: ${item.ufCrm8_1741422879710 || "N/A"}`, 16, y);
-      y += 8;
-
-      doc.text(`Property Type: ${item.ufCrm8_1741425149011 || "N/A"}`, 16, y);
-      y += 8;
-      doc.text(
-        `Listing Type: ${
-          this.mapListingType(item.ufCrm8_1741425358726) || "N/A"
-        }`,
-        16,
-        y
-      );
-      y += 8;
-      doc.text(
-        `Status: ${this.mapStatus(item.ufCrm8_1741425465206) || "N/A"}`,
-        16,
-        y
-      );
-      y += 8;
-      doc.text(`Price: ${item.ufCrm8_1741425522751 || "N/A"}`, 16, y);
-      y += 16;
-
-      if (item.ufCrm8_1741425501215 && item.ufCrm8_1741425501215.length > 0) {
-        doc.setFont(undefined, "bold");
-        doc.text("Property Images", 16, y);
-        y += 10;
-
-        let col = 0;
-        let imgSize = 50;
-        let x = 16;
-
-        for (const imageObj of item.ufCrm8_1741425501215) {
-          if (!imageObj.urlMachine) continue;
-
-          try {
-            const imgData = await this.getBase64ImageFromURL(
-              imageObj.urlMachine
-            );
-            doc.addImage(imgData, "JPEG", x, y, imgSize, imgSize);
-          } catch (error) {
-            console.warn("Failed to load image:", imageObj.urlMachine, error);
-          }
-
-          col++;
-          x += imgSize + 10;
-
-          if (col >= 3) {
-            col = 0;
-            x = 16;
-            y += imgSize + 10;
-          }
+        if (!result.result || !result.result.item) {
+            this.showToast("Item not found");
+            return;
         }
-        y += imgSize + 10;
-      }
 
-      doc.setFontSize(8);
-      doc.text("Generated on " + new Date().toLocaleString(), 105, 285, {
-        align: "center",
-      });
+        const item = result.result.item;
+        console.log(item);
 
-      doc.save(`Mondus_Property_${id}_${new Date().toISOString()}.pdf`);
+        if (typeof window.jspdf === "undefined") {
+            this.showToast("PDF library not loaded", "error");
+            return;
+        }
 
-      this.showToast("PDF downloaded successfully");
+        const doc = new window.jspdf.jsPDF();
+        let y = 10; 
+        const pageHeight = doc.internal.pageSize.height;
+
+        const checkPageBreak = () => {
+            if (y + 10 > pageHeight - 20) {  
+                doc.addPage();
+                y = 10;  
+            }
+        }
+        
+        if (item.ufCrm8_1741425501215 && item.ufCrm8_1741425501215.length > 0) {
+            try {
+                const firstImageObj = item.ufCrm8_1741425501215[0];
+                if (firstImageObj.urlMachine) {
+                    const imgData = await this.getBase64ImageFromURL(firstImageObj.urlMachine);
+                    doc.addImage(imgData, "JPEG", 10, y, 190, 140);
+                    y += 150;
+                    checkPageBreak();
+                }
+            } catch (error) {
+                console.warn("Failed to load first image:", error);
+            }
+        }
+
+        // Property Details Header
+        doc.setFontSize(18);
+        doc.text("Property Details", 105, y, { align: "center" });
+        y += 10;
+        checkPageBreak();
+
+        doc.setFontSize(12);
+        doc.text("MONDUS GROUP", 105, y, { align: "center" });
+        y += 10;
+        checkPageBreak();
+
+        // PROPERTY FEATURES
+        doc.setFontSize(11);
+        doc.setDrawColor(0);
+        doc.setFillColor(240, 240, 240);
+        doc.rect(14, y, 182, 8, "F");
+        doc.setFont(undefined, "bold");
+        doc.text("PROPERTY FEATURES", 16, y + 5);
+        y += 15;
+        checkPageBreak();
+
+        doc.setFont(undefined, "normal");
+        const propertyType = item.ufCrm8_1741425149011 || "N/A";
+        const bedrooms = item.ufCrm8_1741425170670 || "N/A";
+        const bathrooms = item.ufCrm8_1741425181396 || "N/A";
+        const price = item.ufCrm8_1741425522751 || "N/A";
+
+        doc.text(`Sq Ft: ${propertyType}       Beds: ${bedrooms}       Baths: ${bathrooms}`, 16, y);
+        y += 8;
+        checkPageBreak();
+        doc.text(`Price: AED ${price}`, 16, y);
+        y += 8;
+        checkPageBreak();
+
+        doc.setDrawColor(0);
+        doc.line(16, y, 190, y);
+        y += 8;
+        checkPageBreak();
+
+        // PROPERTY INFORMATION
+        doc.setFillColor(240, 240, 240);
+        doc.rect(14, y, 182, 8, "F");
+        doc.setFont(undefined, "bold");
+        doc.text("PROPERTY INFORMATION", 16, y + 5);
+        y += 15;
+        checkPageBreak();
+
+        doc.setFont(undefined, "normal");
+        doc.text(`ID: ${item.id}`, 16, y);
+        y += 8;
+        checkPageBreak();
+        doc.text(`Title: ${item.title || "N/A"}`, 16, y);
+        y += 8;
+        checkPageBreak();
+
+        const emirate = this.mapEmirate(item.ufCrm8_1741421077583);
+        doc.text(`Emirate: ${emirate || "N/A"}`, 16, y);
+        y += 8;
+        checkPageBreak();
+        doc.text(`Building: ${item.ufCrm8_1741422864945 || "N/A"}`, 16, y);
+        y += 8;
+        checkPageBreak();
+        doc.text(`Address: ${item.ufCrm8_1741422879710 || "N/A"}`, 16, y);
+        y += 8;
+        checkPageBreak();
+        doc.text(`Property Type: ${propertyType}`, 16, y);
+        y += 8;
+        checkPageBreak();
+        doc.text(`Listing Type: ${this.mapListingType(item.ufCrm8_1741425358726) || "N/A"}`, 16, y);
+        y += 8;
+        checkPageBreak();
+        doc.text(`Status: ${this.mapStatus(item.ufCrm8_1741425465206) || "N/A"}`, 16, y);
+        y += 8;
+        checkPageBreak();
+        doc.text(`Price: AED ${price}`, 16, y);
+        y += 16;
+        checkPageBreak();
+
+        // PROPERTY IMAGES
+        if (item.ufCrm8_1741425501215 && item.ufCrm8_1741425501215.length > 0) {
+          doc.setFillColor(240, 240, 240);
+          doc.rect(14, y, 182, 8, "F");
+          doc.setFont(undefined, "bold");
+          doc.text("PROPERTY IMAGES", 16, y + 5);
+          y += 15;
+            checkPageBreak();
+
+            let col = 0;
+            let imgSize = 50;
+            let x = 16;
+
+            for (const imageObj of item.ufCrm8_1741425501215) {
+                if (!imageObj.urlMachine) continue;
+
+                try {
+                    const imgData = await this.getBase64ImageFromURL(imageObj.urlMachine);
+                    doc.addImage(imgData, "JPEG", x, y, imgSize, imgSize);
+                } catch (error) {
+                    console.warn("Failed to load image:", imageObj.urlMachine, error);
+                }
+
+                col++;
+                x += imgSize + 10;
+
+                if (col >= 3) {
+                    col = 0;
+                    x = 16;
+                    y += imgSize + 10;
+                    checkPageBreak();
+                }
+            }
+            y += imgSize + 10;
+        }
+
+        // Footer with timestamp
+        doc.setFontSize(8);
+        doc.text("Generated on " + new Date().toLocaleString(), 105, pageHeight - 10, { align: "center" });
+
+        // Save PDF
+        doc.save(`Mondus_Property_${id}_${new Date().toISOString()}.pdf`);
+
+        this.showToast("PDF downloaded successfully");
     } catch (error) {
-      console.error("Error generating PDF:", error);
-      this.showToast("Failed to download PDF");
+        console.error("Error generating PDF:", error);
+        this.showToast("Failed to download PDF");
     }
-  }
+}
+
 
   async getBase64ImageFromURL(url) {
     const response = await fetch(url);
