@@ -6,12 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mondus - Owner's DB PDF Mapping</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body class="bg-gray-50 min-h-screen font-sans antialiased">
     <!-- Main Container -->
-    <div class="max-w-5xl mx-auto p-6">
+    <div class="max-w-[80vw] mx-auto p-6">
         <!-- Header -->
         <div class="flex justify-between items-center mb-8">
             <div>
@@ -33,6 +36,7 @@
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3">ID</th>
+                            <th scope="col" class="px-6 py-3">Title</th>
                             <th scope="col" class="px-6 py-3">Emirate</th>
                             <th scope="col" class="px-6 py-3">Building Name</th>
                             <th scope="col" class="px-6 py-3">Address</th>
@@ -60,7 +64,7 @@
     <div id="toastContainer" class="fixed top-4 right-4 space-y-2 z-50"></div>
 
     <!-- JavaScript -->
-    <script src="script.js">
+    <script src="script.js" type="module">
     </script>
 </body>
 

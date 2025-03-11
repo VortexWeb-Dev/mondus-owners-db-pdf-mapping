@@ -96,6 +96,7 @@ class ItemTable {
       tr.className = "bg-white border-b hover:bg-gray-50";
       tr.innerHTML = `
                 <td class="px-6 py-4">${item.id}</td>
+                <td class="px-6 py-4">${item.title}</td>
                 <td class="px-6 py-4">${
                   this.mapEmirate(item.ufCrm8_1741421077583) || ""
                 }</td>
@@ -168,19 +169,16 @@ class ItemTable {
 
   setupEventListeners() {
     document.addEventListener("click", async (e) => {
-      // Action menu toggle
       if (e.target.closest(".action-btn")) {
         const menu = e.target.closest("td").querySelector(".action-menu");
         menu.classList.toggle("hidden");
         return;
       }
 
-      // Close all menus if clicking outside
       document.querySelectorAll(".action-menu").forEach((menu) => {
         if (!e.target.closest(".action-menu")) menu.classList.add("hidden");
       });
 
-      // Pagination
       if (e.target.id === "prevPage" && this.currentPage > 1) {
         this.currentPage--;
         await this.fetchItems();
@@ -193,7 +191,6 @@ class ItemTable {
         await this.fetchItems();
       }
 
-      // Actions
       const deleteBtn = e.target.closest(".delete-btn");
       const downloadBtn = e.target.closest(".download-btn");
 
@@ -230,9 +227,132 @@ class ItemTable {
   }
 
   async downloadPDF(id) {
-    // Implement PDF download logic here
-    // This is a placeholder - you'll need to adjust based on your Bitrix API capabilities
-    this.showToast("PDF download not implemented yet");
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/crm.item.get?id=${id}&entityTypeId=${entityTypeId}`
+      );
+      const result = await response.json();
+
+      if (!result.result || !result.result.item) {
+        this.showToast("Item not found");
+        return;
+      }
+
+      const item = result.result.item;
+      console.log(item);
+
+      if (typeof window.jspdf === "undefined") {
+        this.showToast("PDF library not loaded", "error");
+        return;
+      }
+
+      const doc = new window.jspdf.jsPDF();
+
+      doc.setFontSize(18);
+      doc.text("Property Details", 105, 15, { align: "center" });
+
+      doc.setFontSize(12);
+      doc.text("MONDUS GROUP", 105, 25, { align: "center" });
+
+      doc.setFontSize(11);
+      doc.setDrawColor(0);
+      doc.setFillColor(240, 240, 240);
+      doc.rect(14, 35, 182, 8, "F");
+      doc.setFont(undefined, "bold");
+      doc.text("PROPERTY INFORMATION", 16, 40);
+
+      doc.setFont(undefined, "normal");
+      let y = 50;
+
+      doc.text(`ID: ${item.id}`, 16, y);
+      y += 8;
+      doc.text(`Title: ${item.title || "N/A"}`, 16, y);
+      y += 8;
+
+      const emirate = this.mapEmirate(item.ufCrm8_1741421077583);
+      doc.text(`Emirate: ${emirate || "N/A"}`, 16, y);
+      y += 8;
+      doc.text(`Building: ${item.ufCrm8_1741422864945 || "N/A"}`, 16, y);
+      y += 8;
+      doc.text(`Address: ${item.ufCrm8_1741422879710 || "N/A"}`, 16, y);
+      y += 8;
+
+      doc.text(`Property Type: ${item.ufCrm8_1741425149011 || "N/A"}`, 16, y);
+      y += 8;
+      doc.text(
+        `Listing Type: ${
+          this.mapListingType(item.ufCrm8_1741425358726) || "N/A"
+        }`,
+        16,
+        y
+      );
+      y += 8;
+      doc.text(
+        `Status: ${this.mapStatus(item.ufCrm8_1741425465206) || "N/A"}`,
+        16,
+        y
+      );
+      y += 8;
+      doc.text(`Price: ${item.ufCrm8_1741425522751 || "N/A"}`, 16, y);
+      y += 16;
+
+      if (item.ufCrm8_1741425501215 && item.ufCrm8_1741425501215.length > 0) {
+        doc.setFont(undefined, "bold");
+        doc.text("Property Images", 16, y);
+        y += 10;
+
+        let col = 0;
+        let imgSize = 50;
+        let x = 16;
+
+        for (const imageObj of item.ufCrm8_1741425501215) {
+          if (!imageObj.urlMachine) continue;
+
+          try {
+            const imgData = await this.getBase64ImageFromURL(
+              imageObj.urlMachine
+            );
+            doc.addImage(imgData, "JPEG", x, y, imgSize, imgSize);
+          } catch (error) {
+            console.warn("Failed to load image:", imageObj.urlMachine, error);
+          }
+
+          col++;
+          x += imgSize + 10;
+
+          if (col >= 3) {
+            col = 0;
+            x = 16;
+            y += imgSize + 10;
+          }
+        }
+        y += imgSize + 10;
+      }
+
+      doc.setFontSize(8);
+      doc.text("Generated on " + new Date().toLocaleString(), 105, 285, {
+        align: "center",
+      });
+
+      doc.save(`Mondus_Property_${id}.pdf`);
+
+      this.showToast("PDF downloaded successfully");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      this.showToast("Failed to download PDF");
+    }
+  }
+
+  async getBase64ImageFromURL(url) {
+    const response = await fetch(url);
+    const blob = await response.blob();
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   }
 }
 
