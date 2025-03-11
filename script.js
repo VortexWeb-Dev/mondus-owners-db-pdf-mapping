@@ -334,7 +334,7 @@ class ItemTable {
         align: "center",
       });
 
-      doc.save(`Mondus_Property_${id}.pdf`);
+      doc.save(`Mondus_Property_${id}_${new Date().toISOString()}.pdf`);
 
       this.showToast("PDF downloaded successfully");
     } catch (error) {
