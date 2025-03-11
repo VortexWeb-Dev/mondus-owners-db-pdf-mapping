@@ -81,7 +81,7 @@ class ItemTable {
   mapStatus(statusId = 0) {
     const typeMap = {
       91: "Vacant",
-      92: "Rented"
+      92: "Rented",
     };
 
     return typeMap[statusId] || "";
@@ -102,8 +102,18 @@ class ItemTable {
                 <td class="px-6 py-4">${item.ufCrm8_1741422864945 || ""}</td>
                 <td class="px-6 py-4">${item.ufCrm8_1741422879710 || ""}</td>
                 <td class="px-6 py-4">${item.ufCrm8_1741425149011 || ""}</td>
-                <td class="px-6 py-4">${this.mapListingType(item.ufCrm8_1741425358726) || ""}</td>
-                <td class="px-6 py-4">${this.mapStatus(item.ufCrm8_1741425465206) || ""}</td>
+                <td class="px-6 py-4">${
+                  this.mapListingType(item.ufCrm8_1741425358726) || ""
+                }</td>
+                <td class="px-6 py-4"><span class="px-2 py-1 rounded-md ${
+                  item.ufCrm8_1741425465206 == 91
+                    ? "text-green-600 bg-green-100"
+                    : item.ufCrm8_1741425465206 == 92
+                    ? "text-red-600 bg-red-100"
+                    : ""
+                }">${
+        this.mapStatus(item.ufCrm8_1741425465206) || ""
+      }</span></td>
                 <td class="px-6 py-4">${item.ufCrm8_1741425522751 || ""}</td>
                 <td class="px-6 py-4 relative text-right">
                     <button class="action-btn text-gray-600 hover:text-gray-900" data-id="${
