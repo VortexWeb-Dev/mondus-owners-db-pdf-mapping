@@ -1,5 +1,5 @@
 const entityTypeId = 1054;
-const API_BASE_URL = "https://mondus.group/rest/1/c3iwswykiqvhzc71";
+const API_BASE_URL = "https://mondus.group/rest/1/dw9gd4xauhctd7ha";
 const ITEMS_PER_PAGE = 50;
 
 class ItemTable {
