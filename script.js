@@ -1,4 +1,4 @@
-const entityTypeId = 1054;
+const entityTypeId = 1050;
 const API_BASE_URL = "https://mondus.group/rest/1/dw9gd4xauhctd7ha";
 const ITEMS_PER_PAGE = 50;
 
@@ -57,12 +57,12 @@ class ItemTable {
 
   mapEmirate(emirateId = 0) {
     const typeMap = {
-      73: "Dubai",
-      74: "Abu Dhabi",
-      75: "Sharjah",
-      76: "Ras Al Khaimah",
-      77: "Fujairah",
-      78: "Ajman",
+      26: "Dubai",
+      27: "Abu Dhabi",
+      28: "Sharjah",
+      29: "Ras Al Khaimah",
+      30: "Fujairah",
+      31: "Ajman",
     };
 
     return typeMap[emirateId] || "";
@@ -70,9 +70,9 @@ class ItemTable {
 
   mapListingType(listingTypeId = 0) {
     const typeMap = {
-      86: "Off-Plan",
-      87: "Leasing",
-      88: "Secondary",
+      32: "Off-Plan",
+      33: "Leasing",
+      34: "Secondary",
     };
 
     return typeMap[listingTypeId] || "";
@@ -80,8 +80,8 @@ class ItemTable {
 
   mapStatus(statusId = 0) {
     const typeMap = {
-      91: "Vacant",
-      92: "Rented",
+      35: "Vacant",
+      36: "Rented",
     };
 
     return typeMap[statusId] || "";
@@ -98,24 +98,24 @@ class ItemTable {
                 <td class="px-6 py-4">${item.id}</td>
                 <td class="px-6 py-4">${item.title}</td>
                 <td class="px-6 py-4">${
-                  this.mapEmirate(item.ufCrm8_1741421077583) || ""
+                  this.mapEmirate(item.ufCrm5Emirate) || ""
                 }</td>
-                <td class="px-6 py-4">${item.ufCrm8_1741422864945 || ""}</td>
-                <td class="px-6 py-4">${item.ufCrm8_1741422879710 || ""}</td>
-                <td class="px-6 py-4">${item.ufCrm8_1741425149011 || ""}</td>
+                <td class="px-6 py-4">${item.ufCrm5BuildingName || ""}</td>
+                <td class="px-6 py-4">${item.ufCrm5Address || ""}</td>
+                <td class="px-6 py-4">${item.ufCrm5PropertyType || ""}</td>
                 <td class="px-6 py-4">${
-                  this.mapListingType(item.ufCrm8_1741425358726) || ""
+                  this.mapListingType(item.ufCrm5ListingType) || ""
                 }</td>
                 <td class="px-6 py-4"><span class="px-2 py-1 rounded-md ${
-                  item.ufCrm8_1741425465206 == 91
+                  item.ufCrm5Status == 35
                     ? "text-green-600 bg-green-100"
-                    : item.ufCrm8_1741425465206 == 92
+                    : item.ufCrm5Status == 36
                     ? "text-red-600 bg-red-100"
                     : ""
                 }">${
-        this.mapStatus(item.ufCrm8_1741425465206) || ""
+        this.mapStatus(item.ufCrm5Status) || ""
       }</span></td>
-                <td class="px-6 py-4">${item.ufCrm8_1741425522751 || ""}</td>
+                <td class="px-6 py-4">${item.ufCrm5AskingOrRentingPrice || ""}</td>
                 <td class="px-6 py-4 relative text-right">
                     <button class="action-btn text-gray-600 hover:text-gray-900" data-id="${
                       item.id
@@ -269,31 +269,31 @@ class ItemTable {
       doc.text(`Title: ${item.title || "N/A"}`, 16, y);
       y += 8;
 
-      const emirate = this.mapEmirate(item.ufCrm8_1741421077583);
+      const emirate = this.mapEmirate(item.ufCrm5Emirate);
       doc.text(`Emirate: ${emirate || "N/A"}`, 16, y);
       y += 8;
-      doc.text(`Building: ${item.ufCrm8_1741422864945 || "N/A"}`, 16, y);
+      doc.text(`Building: ${item.ufCrm5BuildingName || "N/A"}`, 16, y);
       y += 8;
-      doc.text(`Address: ${item.ufCrm8_1741422879710 || "N/A"}`, 16, y);
+      doc.text(`Address: ${item.ufCrm5Address || "N/A"}`, 16, y);
       y += 8;
 
-      doc.text(`Property Type: ${item.ufCrm8_1741425149011 || "N/A"}`, 16, y);
+      doc.text(`Property Type: ${item.ufCrm5PropertyType || "N/A"}`, 16, y);
       y += 8;
       doc.text(
         `Listing Type: ${
-          this.mapListingType(item.ufCrm8_1741425358726) || "N/A"
+          this.mapListingType(item.ufCrm5ListingType) || "N/A"
         }`,
         16,
         y
       );
       y += 8;
       doc.text(
-        `Status: ${this.mapStatus(item.ufCrm8_1741425465206) || "N/A"}`,
+        `Status: ${this.mapStatus(item.ufCrm5Status) || "N/A"}`,
         16,
         y
       );
       y += 8;
-      doc.text(`Price: ${item.ufCrm8_1741425522751 || "N/A"}`, 16, y);
+      doc.text(`Price: ${item.ufCrm5AskingOrRentingPrice || "N/A"}`, 16, y);
       y += 16;
 
       if (item.ufCrm8_1741425501215 && item.ufCrm8_1741425501215.length > 0) {
