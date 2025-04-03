@@ -1,5 +1,5 @@
-const entityTypeId = 1050;
-const API_BASE_URL = "https://mondus.group/rest/1/dw9gd4xauhctd7ha";
+const entityTypeId = 1054;
+const API_BASE_URL = "https://mondus.group/rest/1/c3iwswykiqvhzc71";
 const ITEMS_PER_PAGE = 50;
 
 class ItemTable {
@@ -57,12 +57,12 @@ class ItemTable {
 
   mapEmirate(emirateId = 0) {
     const typeMap = {
-      26: "Dubai",
-      27: "Abu Dhabi",
-      28: "Sharjah",
-      29: "Ras Al Khaimah",
-      30: "Fujairah",
-      31: "Ajman",
+      73: "Dubai",
+      74: "Abu Dhabi",
+      75: "Sharjah",
+      76: "Ras Al Khaimah",
+      77: "Fujairah",
+      78: "Ajman",
     };
 
     return typeMap[emirateId] || "";
@@ -70,9 +70,9 @@ class ItemTable {
 
   mapListingType(listingTypeId = 0) {
     const typeMap = {
-      32: "Off-Plan",
-      33: "Leasing",
-      34: "Secondary",
+      86: "Off-Plan",
+      87: "Leasing",
+      88: "Secondary",
     };
 
     return typeMap[listingTypeId] || "";
@@ -80,8 +80,8 @@ class ItemTable {
 
   mapStatus(statusId = 0) {
     const typeMap = {
-      35: "Vacant",
-      36: "Rented",
+      91: "Vacant",
+      92: "Rented",
     };
 
     return typeMap[statusId] || "";
@@ -98,24 +98,24 @@ class ItemTable {
                 <td class="px-6 py-4">${item.id}</td>
                 <td class="px-6 py-4">${item.title}</td>
                 <td class="px-6 py-4">${
-                  this.mapEmirate(item.ufCrm5Emirate) || ""
+                  this.mapEmirate(item.ufCrm8_1741421077583) || ""
                 }</td>
-                <td class="px-6 py-4">${item.ufCrm5BuildingName || ""}</td>
-                <td class="px-6 py-4">${item.ufCrm5Address || ""}</td>
-                <td class="px-6 py-4">${item.ufCrm5PropertyType || ""}</td>
+                <td class="px-6 py-4">${item.ufCrm8_1741422864945 || ""}</td>
+                <td class="px-6 py-4">${item.ufCrm8_1741422879710 || ""}</td>
+                <td class="px-6 py-4">${item.ufCrm8_1741425149011 || ""}</td>
                 <td class="px-6 py-4">${
-                  this.mapListingType(item.ufCrm5ListingType) || ""
+                  this.mapListingType(item.ufCrm8_1741425358726) || ""
                 }</td>
                 <td class="px-6 py-4"><span class="px-2 py-1 rounded-md ${
-                  item.ufCrm5Status == 35
+                  item.ufCrm8_1741425465206 == 91
                     ? "text-green-600 bg-green-100"
-                    : item.ufCrm5Status == 36
+                    : item.ufCrm8_1741425465206 == 92
                     ? "text-red-600 bg-red-100"
                     : ""
                 }">${
-        this.mapStatus(item.ufCrm5Status) || ""
+        this.mapStatus(item.ufCrm8_1741425465206) || ""
       }</span></td>
-                <td class="px-6 py-4">${item.ufCrm5AskingOrRentingPrice || ""}</td>
+                <td class="px-6 py-4">${item.ufCrm8_1741425522751 || ""}</td>
                 <td class="px-6 py-4 relative text-right">
                     <button class="action-btn text-gray-600 hover:text-gray-900" data-id="${
                       item.id
@@ -247,59 +247,132 @@ class ItemTable {
       }
 
       const doc = new window.jspdf.jsPDF();
+      let y = 10;
+      const pageHeight = doc.internal.pageSize.height;
 
+      const checkPageBreak = () => {
+        if (y + 10 > pageHeight - 20) {
+          doc.addPage();
+          y = 10;
+        }
+      };
+
+      if (item.ufCrm8_1741425501215 && item.ufCrm8_1741425501215.length > 0) {
+        try {
+          const firstImageObj = item.ufCrm8_1741425501215[0];
+          if (firstImageObj.urlMachine) {
+            const imgData = await this.getBase64ImageFromURL(
+              firstImageObj.urlMachine
+            );
+            doc.addImage(imgData, "JPEG", 10, y, 190, 140);
+            y += 150;
+            checkPageBreak();
+          }
+        } catch (error) {
+          console.warn("Failed to load first image:", error);
+        }
+      }
+
+      // Property Details Header
       doc.setFontSize(18);
-      doc.text("Property Details", 105, 15, { align: "center" });
+      doc.text("Property Details", 105, y, { align: "center" });
+      y += 10;
+      checkPageBreak();
 
       doc.setFontSize(12);
-      doc.text("MONDUS GROUP", 105, 25, { align: "center" });
+      doc.text("MONDUS GROUP", 105, y, { align: "center" });
+      y += 10;
+      checkPageBreak();
 
+      // PROPERTY FEATURES
       doc.setFontSize(11);
       doc.setDrawColor(0);
       doc.setFillColor(240, 240, 240);
-      doc.rect(14, 35, 182, 8, "F");
+      doc.rect(14, y, 182, 8, "F");
       doc.setFont(undefined, "bold");
-      doc.text("PROPERTY INFORMATION", 16, 40);
+      doc.text("PROPERTY FEATURES", 16, y + 5);
+      y += 15;
+      checkPageBreak();
 
       doc.setFont(undefined, "normal");
-      let y = 50;
+      const propertyType = item.ufCrm8_1741425149011 || "N/A";
+      const bedrooms = item.ufCrm8_1741425170670 || "N/A";
+      const bathrooms = item.ufCrm8_1741425181396 || "N/A";
+      const price = item.ufCrm8_1741425522751 || "N/A";
 
+      doc.text(
+        `Sq Ft: ${propertyType}       Beds: ${bedrooms}       Baths: ${bathrooms}`,
+        16,
+        y
+      );
+      y += 8;
+      checkPageBreak();
+      doc.text(`Price: AED ${price}`, 16, y);
+      y += 8;
+      checkPageBreak();
+
+      doc.setDrawColor(0);
+      doc.line(16, y, 190, y);
+      y += 8;
+      checkPageBreak();
+
+      // PROPERTY INFORMATION
+      doc.setFillColor(240, 240, 240);
+      doc.rect(14, y, 182, 8, "F");
+      doc.setFont(undefined, "bold");
+      doc.text("PROPERTY INFORMATION", 16, y + 5);
+      y += 15;
+      checkPageBreak();
+
+      doc.setFont(undefined, "normal");
       doc.text(`ID: ${item.id}`, 16, y);
       y += 8;
+      checkPageBreak();
       doc.text(`Title: ${item.title || "N/A"}`, 16, y);
       y += 8;
+      checkPageBreak();
 
-      const emirate = this.mapEmirate(item.ufCrm5Emirate);
+      const emirate = this.mapEmirate(item.ufCrm8_1741421077583);
       doc.text(`Emirate: ${emirate || "N/A"}`, 16, y);
       y += 8;
-      doc.text(`Building: ${item.ufCrm5BuildingName || "N/A"}`, 16, y);
+      checkPageBreak();
+      doc.text(`Building: ${item.ufCrm8_1741422864945 || "N/A"}`, 16, y);
       y += 8;
-      doc.text(`Address: ${item.ufCrm5Address || "N/A"}`, 16, y);
+      checkPageBreak();
+      doc.text(`Address: ${item.ufCrm8_1741422879710 || "N/A"}`, 16, y);
       y += 8;
-
-      doc.text(`Property Type: ${item.ufCrm5PropertyType || "N/A"}`, 16, y);
+      checkPageBreak();
+      doc.text(`Property Type: ${propertyType}`, 16, y);
       y += 8;
+      checkPageBreak();
       doc.text(
         `Listing Type: ${
-          this.mapListingType(item.ufCrm5ListingType) || "N/A"
+          this.mapListingType(item.ufCrm8_1741425358726) || "N/A"
         }`,
         16,
         y
       );
       y += 8;
+      checkPageBreak();
       doc.text(
-        `Status: ${this.mapStatus(item.ufCrm5Status) || "N/A"}`,
+        `Status: ${this.mapStatus(item.ufCrm8_1741425465206) || "N/A"}`,
         16,
         y
       );
       y += 8;
-      doc.text(`Price: ${item.ufCrm5AskingOrRentingPrice || "N/A"}`, 16, y);
+      checkPageBreak();
+      doc.text(`Price: AED ${price}`, 16, y);
       y += 16;
+      checkPageBreak();
 
+      // PROPERTY IMAGES
       if (item.ufCrm8_1741425501215 && item.ufCrm8_1741425501215.length > 0) {
+        doc.setFillColor(240, 240, 240);
+        doc.rect(14, y, 182, 8, "F");
         doc.setFont(undefined, "bold");
-        doc.text("Property Images", 16, y);
-        y += 10;
+        doc.text("PROPERTY IMAGES", 16, y + 5);
+        y += 15;
+        checkPageBreak();
 
         let col = 0;
         let imgSize = 50;
@@ -324,16 +397,22 @@ class ItemTable {
             col = 0;
             x = 16;
             y += imgSize + 10;
+            checkPageBreak();
           }
         }
         y += imgSize + 10;
       }
 
+      // Footer with timestamp
       doc.setFontSize(8);
-      doc.text("Generated on " + new Date().toLocaleString(), 105, 285, {
-        align: "center",
-      });
+      doc.text(
+        "Generated on " + new Date().toLocaleString(),
+        105,
+        pageHeight - 10,
+        { align: "center" }
+      );
 
+      // Save PDF
       doc.save(`Mondus_Property_${id}_${new Date().toISOString()}.pdf`);
 
       this.showToast("PDF downloaded successfully");
