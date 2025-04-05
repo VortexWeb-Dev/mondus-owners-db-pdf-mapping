@@ -1,4 +1,4 @@
-const entityTypeId = 1050;
+const entityTypeId = 1058;
 const API_BASE_URL = "https://mondus.group/rest/1/dw9gd4xauhctd7ha";
 const ITEMS_PER_PAGE = 50;
 
@@ -57,12 +57,12 @@ class ItemTable {
 
   mapEmirate(emirateId = 0) {
     const typeMap = {
-      26: "Dubai",
-      27: "Abu Dhabi",
-      28: "Sharjah",
-      29: "Ras Al Khaimah",
-      30: "Fujairah",
-      31: "Ajman",
+      37: "Dubai",
+      38: "Abu Dhabi",
+      39: "Sharjah",
+      40: "Ras Al Khaimah",
+      41: "Fujairah",
+      42: "Ajman",
     };
 
     return typeMap[emirateId] || "";
@@ -70,9 +70,9 @@ class ItemTable {
 
   mapListingType(listingTypeId = 0) {
     const typeMap = {
-      32: "Off-Plan",
-      33: "Leasing",
-      34: "Secondary",
+      50: "Off-Plan",
+      51: "Leasing",
+      52: "Secondary",
     };
 
     return typeMap[listingTypeId] || "";
@@ -80,8 +80,8 @@ class ItemTable {
 
   mapStatus(statusId = 0) {
     const typeMap = {
-      35: "Vacant",
-      36: "Rented",
+      55: "Vacant",
+      56: "Rented",
     };
 
     return typeMap[statusId] || "";
@@ -98,23 +98,23 @@ class ItemTable {
                 <td class="px-6 py-4">${item.id}</td>
                 <td class="px-6 py-4">${item.title}</td>
                 <td class="px-6 py-4">${
-                  this.mapEmirate(item.ufCrm5Emirate) || ""
+                  this.mapEmirate(item.ufCrm7_1743829019488) || ""
                 }</td>
-                <td class="px-6 py-4">${item.ufCrm5BuildingName || ""}</td>
-                <td class="px-6 py-4">${item.ufCrm5Address || ""}</td>
-                <td class="px-6 py-4">${item.ufCrm5PropertyType || ""}</td>
+                <td class="px-6 py-4">${item.ufCrm7_1743829187045 || ""}</td>
+                <td class="px-6 py-4">${item.ufCrm7_1743829195831 || ""}</td>
+                <td class="px-6 py-4">${item.ufCrm7_1743829247734 || ""}</td>
                 <td class="px-6 py-4">${
-                  this.mapListingType(item.ufCrm5ListingType) || ""
+                  this.mapListingType(item.ufCrm7_1743829448289) || ""
                 }</td>
                 <td class="px-6 py-4"><span class="px-2 py-1 rounded-md ${
-                  item.ufCrm5Status == 35
+                  item.ufCrm7_1743829543608 == 55
                     ? "text-green-600 bg-green-100"
-                    : item.ufCrm5Status == 36
+                    : item.ufCrm7_1743829543608 == 56
                     ? "text-red-600 bg-red-100"
                     : ""
-                }">${this.mapStatus(item.ufCrm5Status) || ""}</span></td>
+                }">${this.mapStatus(item.ufCrm7_1743829543608) || ""}</span></td>
                 <td class="px-6 py-4">${
-                  item.ufCrm5AskingOrRentingPrice || ""
+                  item.ufCrm7_1743829576957 || ""
                 }</td>
                 <td class="px-6 py-4 relative text-right">
                     <button class="action-btn text-gray-600 hover:text-gray-900" data-id="${
@@ -257,9 +257,9 @@ class ItemTable {
         }
       };
 
-      if (item.ufCrm5PropertyImages && item.ufCrm5PropertyImages.length > 0) {
+      if (item.ufCrm7_1743829554446 && item.ufCrm7_1743829554446.length > 0) {
         try {
-          const firstImageObj = item.ufCrm5PropertyImages[0];
+          const firstImageObj = item.ufCrm7_1743829554446[0];
           if (firstImageObj.urlMachine) {
             const imgData = await this.getBase64ImageFromURL(
               firstImageObj.urlMachine
@@ -283,7 +283,7 @@ class ItemTable {
       doc.text("MONDUS GROUP", 105, y, { align: "center" });
       y += 10;
       checkPageBreak();
-
+    
       // PROPERTY FEATURES
       doc.setFontSize(11);
       doc.setDrawColor(0);
@@ -295,13 +295,14 @@ class ItemTable {
       checkPageBreak();
 
       doc.setFont(undefined, "normal");
-      const propertyType = item.ufCrm5PropertyType || "N/A";
-      const bedrooms = item.ufCrm5Bedrooms || "N/A";
-      const bathrooms = item.ufCrm5Bathrooms || "N/A";
-      const price = item.ufCrm5AskingOrRentingPrice || "N/A";
+      const propertyType = item.ufCrm7_1743829247734 || "N/A";
+      const bedrooms = item.ufCrm7_1743829267783 || "N/A";
+      const bathrooms = item.ufCrm7_1743829278192 || "N/A";
+      const price = item.ufCrm7_1743829576957 || "N/A";
+      const sqft = item.ufCrm7_1743829315467 || "N/A";
 
       doc.text(
-        `Sq Ft: ${propertyType}       Beds: ${bedrooms}       Baths: ${bathrooms}`,
+        `Sq Ft: ${sqft}       Beds: ${bedrooms}       Baths: ${bathrooms}`,
         16,
         y
       );
@@ -332,27 +333,27 @@ class ItemTable {
       y += 8;
       checkPageBreak();
 
-      const emirate = this.mapEmirate(item.ufCrm5Emirate);
+      const emirate = this.mapEmirate(item.ufCrm7_1743829019488);
       doc.text(`Emirate: ${emirate || "N/A"}`, 16, y);
       y += 8;
       checkPageBreak();
-      doc.text(`Building: ${item.ufCrm5BuildingName || "N/A"}`, 16, y);
+      doc.text(`Building: ${item.ufCrm7_1743829187045|| "N/A"}`, 16, y);
       y += 8;
       checkPageBreak();
-      doc.text(`Address: ${item.ufCrm5Address || "N/A"}`, 16, y);
+      doc.text(`Address: ${item.ufCrm7_1743829195831 || "N/A"}`, 16, y);
       y += 8;
       checkPageBreak();
       doc.text(`Property Type: ${propertyType}`, 16, y);
       y += 8;
       checkPageBreak();
       doc.text(
-        `Listing Type: ${this.mapListingType(item.ufCrm5ListingType) || "N/A"}`,
+        `Listing Type: ${this.mapListingType(item.ufCrm7_1743829448289) || "N/A"}`,
         16,
         y
       );
       y += 8;
       checkPageBreak();
-      doc.text(`Status: ${this.mapStatus(item.ufCrm5Status) || "N/A"}`, 16, y);
+      doc.text(`Status: ${this.mapStatus(item.ufCrm7_1743829543608) || "N/A"}`, 16, y);
       y += 8;
       checkPageBreak();
       doc.text(`Price: AED ${price}`, 16, y);
@@ -360,7 +361,7 @@ class ItemTable {
       checkPageBreak();
 
       // PROPERTY IMAGES
-      if (item.ufCrm5PropertyImages && item.ufCrm5PropertyImages.length > 0) {
+      if (item.ufCrm7_1743829554446 && item.ufCrm7_1743829554446.length > 0) {
         doc.setFillColor(240, 240, 240);
         doc.rect(14, y, 182, 8, "F");
         doc.setFont(undefined, "bold");
@@ -372,7 +373,7 @@ class ItemTable {
         let imgSize = 50;
         let x = 16;
 
-        for (const imageObj of item.ufCrm5PropertyImages) {
+        for (const imageObj of item.ufCrm7_1743829554446) {
           if (!imageObj.urlMachine) continue;
 
           try {
