@@ -239,7 +239,6 @@ class ItemTable {
       }
 
       const item = result.result.item;
-      console.log(item);
 
       if (typeof window.jspdf === "undefined") {
         this.showToast("PDF library not loaded", "error");
@@ -257,9 +256,9 @@ class ItemTable {
         }
       };
 
-      if (item.ufCrm7_1743829554446 && item.ufCrm7_1743829554446.length > 0) {
+      if (item.ufCrm7_1743856030 && item.ufCrm7_1743856030.length > 0) {
         try {
-          const firstImageObj = item.ufCrm7_1743829554446[0];
+          const firstImageObj = item.ufCrm7_1743856030[0];
           if (firstImageObj.urlMachine) {
             const imgData = await this.getBase64ImageFromURL(
               firstImageObj.urlMachine
@@ -361,7 +360,7 @@ class ItemTable {
       checkPageBreak();
 
       // PROPERTY IMAGES
-      if (item.ufCrm7_1743829554446 && item.ufCrm7_1743829554446.length > 0) {
+      if (item.ufCrm7_1743856030 && item.ufCrm7_1743856030.length > 0) {
         doc.setFillColor(240, 240, 240);
         doc.rect(14, y, 182, 8, "F");
         doc.setFont(undefined, "bold");
@@ -373,7 +372,7 @@ class ItemTable {
         let imgSize = 50;
         let x = 16;
 
-        for (const imageObj of item.ufCrm7_1743829554446) {
+        for (const imageObj of item.ufCrm7_1743856030) {
           if (!imageObj.urlMachine) continue;
 
           try {
