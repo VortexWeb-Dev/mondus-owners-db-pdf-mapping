@@ -40,6 +40,7 @@ class ItemTable {
           entityTypeId,
           start: (this.currentPage - 1) * ITEMS_PER_PAGE,
           limit: ITEMS_PER_PAGE,
+          order: { id: "desc" },
         }),
       });
       const data = await response.json();
@@ -91,11 +92,11 @@ class ItemTable {
     const tbody = document.getElementById("itemsTableBody");
     tbody.innerHTML = "";
 
-    items.forEach((item) => {
+    items.forEach((item, index) => {
       const tr = document.createElement("tr");
       tr.className = "bg-white border-b hover:bg-gray-50";
       tr.innerHTML = `
-                <td class="px-6 py-4">${item.id}</td>
+                <td class="px-6 py-4">${index + 1}</td>
                 <td class="px-6 py-4">${item.title}</td>
                 <td class="px-6 py-4">${
                   this.mapEmirate(item.ufCrm7_1743829019488) || ""
@@ -112,10 +113,10 @@ class ItemTable {
                     : item.ufCrm7_1743829543608 == 56
                     ? "text-red-600 bg-red-100"
                     : ""
-                }">${this.mapStatus(item.ufCrm7_1743829543608) || ""}</span></td>
-                <td class="px-6 py-4">${
-                  item.ufCrm7_1743829576957 || ""
-                }</td>
+                }">${
+        this.mapStatus(item.ufCrm7_1743829543608) || ""
+      }</span></td>
+                <td class="px-6 py-4">${item.ufCrm7_1743829576957 || ""}</td>
                 <td class="px-6 py-4 relative text-right">
                     <button class="action-btn text-gray-600 hover:text-gray-900" data-id="${
                       item.id
@@ -282,7 +283,7 @@ class ItemTable {
       doc.text("MONDUS GROUP", 105, y, { align: "center" });
       y += 10;
       checkPageBreak();
-    
+
       // PROPERTY FEATURES
       doc.setFontSize(11);
       doc.setDrawColor(0);
@@ -336,7 +337,7 @@ class ItemTable {
       doc.text(`Emirate: ${emirate || "N/A"}`, 16, y);
       y += 8;
       checkPageBreak();
-      doc.text(`Building: ${item.ufCrm7_1743829187045|| "N/A"}`, 16, y);
+      doc.text(`Building: ${item.ufCrm7_1743829187045 || "N/A"}`, 16, y);
       y += 8;
       checkPageBreak();
       doc.text(`Address: ${item.ufCrm7_1743829195831 || "N/A"}`, 16, y);
@@ -346,13 +347,19 @@ class ItemTable {
       y += 8;
       checkPageBreak();
       doc.text(
-        `Listing Type: ${this.mapListingType(item.ufCrm7_1743829448289) || "N/A"}`,
+        `Listing Type: ${
+          this.mapListingType(item.ufCrm7_1743829448289) || "N/A"
+        }`,
         16,
         y
       );
       y += 8;
       checkPageBreak();
-      doc.text(`Status: ${this.mapStatus(item.ufCrm7_1743829543608) || "N/A"}`, 16, y);
+      doc.text(
+        `Status: ${this.mapStatus(item.ufCrm7_1743829543608) || "N/A"}`,
+        16,
+        y
+      );
       y += 8;
       checkPageBreak();
       doc.text(`Price: AED ${price}`, 16, y);
