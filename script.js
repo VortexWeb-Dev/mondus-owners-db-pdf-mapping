@@ -129,6 +129,11 @@ class ItemTable {
                         }">
                             Download PDF
                         </button>
+                        <button class="share-link-btn block w-full text-left px-3 py-2 text-sm text-blue-700 hover:bg-gray-100" data-id="${
+                          item.id
+                        }">
+                            Copy Share Link
+                        </button>
                         <button class="delete-btn block w-full text-left px-3 py-2 text-sm text-red-700 hover:bg-gray-100" data-id="${
                           item.id
                         }">
@@ -194,6 +199,7 @@ class ItemTable {
 
       const deleteBtn = e.target.closest(".delete-btn");
       const downloadBtn = e.target.closest(".download-btn");
+      const shareBtn = e.target.closest(".share-link-btn");
 
       if (deleteBtn) {
         const id = deleteBtn.dataset.id;
@@ -205,6 +211,16 @@ class ItemTable {
       if (downloadBtn) {
         const id = downloadBtn.dataset.id;
         this.downloadPDF(id);
+      }
+
+      if (shareBtn) {
+        const id = shareBtn.dataset.id;
+        const link = this.generateShareableLink(id);
+
+        navigator.clipboard
+          .writeText(link)
+          .then(() => this.showToast("Link copied to clipboard"))
+          .catch(() => this.showToast("Failed to copy link", "error"));
       }
     });
   }
@@ -433,6 +449,17 @@ class ItemTable {
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
+  }
+
+  generateShareableLink(id) {
+    const baseUrl = window.location.origin;
+    let path = "/owners-db-pdf-mapping/";
+
+    if (baseUrl.includes("localhost")) {
+      path = "/projects/mondus/owners-db-pdf-mapping/";
+    }
+
+    return `${baseUrl}${path}download-pdf.php?id=${id}`;
   }
 }
 
