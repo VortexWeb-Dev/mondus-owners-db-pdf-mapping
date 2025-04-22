@@ -210,7 +210,10 @@ class ItemTable {
 
       if (downloadBtn) {
         const id = downloadBtn.dataset.id;
-        this.downloadPDF(id);
+        downloadBtn.innerHTML = "Downloading...";
+        downloadBtn.disabled = true;
+        downloadBtn.classList.add("cursor-not-allowed");
+        this.downloadPDF(id, downloadBtn);
       }
 
       if (shareBtn) {
@@ -243,7 +246,7 @@ class ItemTable {
     }
   }
 
-  async downloadPDF(id) {
+  async downloadPDF(id, button) {
     try {
       const response = await fetch(
         `${API_BASE_URL}/crm.item.get?id=${id}&entityTypeId=${entityTypeId}`
@@ -433,9 +436,15 @@ class ItemTable {
 
       doc.save(`Mondus_Property_${id}_${new Date().toISOString()}.pdf`);
       this.showToast("PDF downloaded successfully");
+      button.innerHTML = "Download PDF";
+      button.disabled = false;
+      button.classList.remove("cursor-not-allowed");
     } catch (error) {
       console.error("Error generating PDF:", error);
       this.showToast("Failed to download PDF");
+      button.innerHTML = "Download PDF";
+      button.disabled = false;
+      button.classList.remove("cursor-not-allowed");
     }
   }
 
