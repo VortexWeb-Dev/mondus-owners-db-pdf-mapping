@@ -273,23 +273,21 @@ class ItemTable {
         }
       };
 
-      if (item.ufCrm7_1743856030 && item.ufCrm7_1743856030.length > 0) {
+      // === First large image (main preview image) ===
+      if (item.ufCrm7_1743856030?.[0]?.urlMachine) {
         try {
-          const firstImageObj = item.ufCrm7_1743856030[0];
-          if (firstImageObj.urlMachine) {
-            const imgData = await this.getBase64ImageFromURL(
-              firstImageObj.urlMachine
-            );
-            doc.addImage(imgData, "JPEG", 10, y, 190, 140);
-            y += 150;
-            checkPageBreak();
-          }
-        } catch (error) {
-          console.warn("Failed to load first image:", error);
+          const imgData = await this.getBase64ImageFromURL(
+            item.ufCrm7_1743856030[0].urlMachine
+          );
+          doc.addImage(imgData, "JPEG", 10, y, 190, 140);
+          y += 150;
+          checkPageBreak();
+        } catch (err) {
+          console.warn("Error loading preview image:", err);
         }
       }
 
-      // Property Details Header
+      // === Headers ===
       doc.setFontSize(18);
       doc.text("Property Details", 105, y, { align: "center" });
       y += 10;
@@ -300,7 +298,7 @@ class ItemTable {
       y += 10;
       checkPageBreak();
 
-      // PROPERTY FEATURES
+      // === PROPERTY FEATURES ===
       doc.setFontSize(11);
       doc.setDrawColor(0);
       doc.setFillColor(240, 240, 240);
@@ -310,13 +308,13 @@ class ItemTable {
       y += 15;
       checkPageBreak();
 
-      doc.setFont(undefined, "normal");
       const propertyType = item.ufCrm7_1743829247734 || "N/A";
       const bedrooms = item.ufCrm7_1743829267783 || "N/A";
       const bathrooms = item.ufCrm7_1743829278192 || "N/A";
       const price = item.ufCrm7_1743829576957 || "N/A";
       const sqft = item.ufCrm7_1743829315467 || "N/A";
 
+      doc.setFont(undefined, "normal");
       doc.text(
         `Sq Ft: ${sqft}       Beds: ${bedrooms}       Baths: ${bathrooms}`,
         16,
@@ -333,7 +331,7 @@ class ItemTable {
       y += 8;
       checkPageBreak();
 
-      // PROPERTY INFORMATION
+      // === PROPERTY INFORMATION ===
       doc.setFillColor(240, 240, 240);
       doc.rect(14, y, 182, 8, "F");
       doc.setFont(undefined, "bold");
@@ -348,9 +346,11 @@ class ItemTable {
       doc.text(`Title: ${item.title || "N/A"}`, 16, y);
       y += 8;
       checkPageBreak();
-
-      const emirate = this.mapEmirate(item.ufCrm7_1743829019488);
-      doc.text(`Emirate: ${emirate || "N/A"}`, 16, y);
+      doc.text(
+        `Emirate: ${this.mapEmirate(item.ufCrm7_1743829019488) || "N/A"}`,
+        16,
+        y
+      );
       y += 8;
       checkPageBreak();
       doc.text(`Building: ${item.ufCrm7_1743829187045 || "N/A"}`, 16, y);
@@ -382,7 +382,7 @@ class ItemTable {
       y += 16;
       checkPageBreak();
 
-      // PROPERTY IMAGES
+      // === PROPERTY IMAGES ===
       if (item.ufCrm7_1743856030 && item.ufCrm7_1743856030.length > 0) {
         doc.setFillColor(240, 240, 240);
         doc.rect(14, y, 182, 8, "F");
@@ -420,18 +420,18 @@ class ItemTable {
         y += imgSize + 10;
       }
 
-      // Footer with timestamp
+      // === Footer ===
       doc.setFontSize(8);
       doc.text(
         "Generated on " + new Date().toLocaleString(),
         105,
         pageHeight - 10,
-        { align: "center" }
+        {
+          align: "center",
+        }
       );
 
-      // Save PDF
       doc.save(`Mondus_Property_${id}_${new Date().toISOString()}.pdf`);
-
       this.showToast("PDF downloaded successfully");
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -440,7 +440,8 @@ class ItemTable {
   }
 
   async getBase64ImageFromURL(url) {
-    const response = await fetch(url);
+    const proxyUrl = "https://apps.mondus.group/proxy/?url=";
+    const response = await fetch(proxyUrl + encodeURIComponent(url));
     const blob = await response.blob();
 
     return new Promise((resolve, reject) => {
