@@ -276,11 +276,11 @@ class ItemTable {
         }
       };
 
-      // === First large image (main preview image) ===
+      // === Headers ===
       if (item.ufCrm7_1743856030?.[0]?.urlMachine) {
         try {
           const imgData = await this.getBase64ImageFromURL(
-            item.ufCrm7_1743856030[0].urlMachine
+            "https://apps.mondus.group/assets/mondus-header.png"
           );
           doc.addImage(imgData, "JPEG", 10, y, 190, 140);
           y += 150;
@@ -290,15 +290,70 @@ class ItemTable {
         }
       }
 
-      // === Headers ===
-      doc.setFontSize(18);
-      doc.text("Property Details", 105, y, { align: "center" });
+      const propertyType = item.ufCrm7_1743829247734 || "N/A";
+      const bedrooms = item.ufCrm7_1743829267783 || "N/A";
+      const bathrooms = item.ufCrm7_1743829278192 || "N/A";
+      const price = item.ufCrm7_1743829576957 || "N/A";
+      const sqft = item.ufCrm7_1743829315467 || "N/A";
+
+      // === PROPERTY INFORMATION ===
+      // doc.setFillColor(240, 240, 240);
+      // doc.rect(14, y, 182, 8, "F");
+      // doc.setFont(undefined, "bold");
+      // doc.text("PROPERTY INFORMATION", 16, y + 5);
+      // y += 15;
+      // checkPageBreak();
+
+      // Add title in the format shown in the image
+      doc.setFont(undefined, "bold");
+      doc.setFontSize(14);
+      doc.text(item.title || "N/A", 16, y);
       y += 10;
       checkPageBreak();
 
+      // Add location with map pin icon
       doc.setFontSize(12);
-      doc.text("MONDUS GROUP", 105, y, { align: "center" });
-      y += 10;
+      // Using location data from your original content
+      const location = `${this.mapEmirate(item.ufCrm7_1743829019488) || ""} - ${
+        item.ufCrm7_1743829187045 || ""
+      } - ${item.ufCrm7_1743829195831 || ""}`;
+      doc.text(`${location}`, 16, y);
+      y += 8;
+      checkPageBreak();
+
+      // Add price with emphasis
+      doc.setFont(undefined, "bold");
+      doc.text(`AED ${parseFloat(price)}`, 16, y);
+      y += 16;
+      checkPageBreak();
+
+      // Continue with the rest of property details
+      doc.setFont(undefined, "normal");
+      doc.setFontSize(10);
+      doc.text(`ID: ${item.id}`, 16, y);
+      y += 8;
+      checkPageBreak();
+
+      doc.text(`Property Type: ${propertyType}`, 16, y);
+      y += 8;
+      checkPageBreak();
+
+      doc.text(
+        `Listing Type: ${
+          this.mapListingType(item.ufCrm7_1743829448289) || "N/A"
+        }`,
+        16,
+        y
+      );
+      y += 8;
+      checkPageBreak();
+
+      doc.text(
+        `Status: ${this.mapStatus(item.ufCrm7_1743829543608) || "N/A"}`,
+        16,
+        y
+      );
+      y += 16;
       checkPageBreak();
 
       // === PROPERTY FEATURES ===
@@ -311,12 +366,6 @@ class ItemTable {
       y += 15;
       checkPageBreak();
 
-      const propertyType = item.ufCrm7_1743829247734 || "N/A";
-      const bedrooms = item.ufCrm7_1743829267783 || "N/A";
-      const bathrooms = item.ufCrm7_1743829278192 || "N/A";
-      const price = item.ufCrm7_1743829576957 || "N/A";
-      const sqft = item.ufCrm7_1743829315467 || "N/A";
-
       doc.setFont(undefined, "normal");
       doc.text(
         `Sq Ft: ${sqft}       Beds: ${bedrooms}       Baths: ${bathrooms}`,
@@ -325,64 +374,13 @@ class ItemTable {
       );
       y += 8;
       checkPageBreak();
-      doc.text(`Price: AED ${price}`, 16, y);
+      doc.text(`Price: AED ${parseFloat(price)}`, 16, y);
       y += 8;
       checkPageBreak();
 
       doc.setDrawColor(0);
       doc.line(16, y, 190, y);
       y += 8;
-      checkPageBreak();
-
-      // === PROPERTY INFORMATION ===
-      doc.setFillColor(240, 240, 240);
-      doc.rect(14, y, 182, 8, "F");
-      doc.setFont(undefined, "bold");
-      doc.text("PROPERTY INFORMATION", 16, y + 5);
-      y += 15;
-      checkPageBreak();
-
-      doc.setFont(undefined, "normal");
-      doc.text(`ID: ${item.id}`, 16, y);
-      y += 8;
-      checkPageBreak();
-      doc.text(`Title: ${item.title || "N/A"}`, 16, y);
-      y += 8;
-      checkPageBreak();
-      doc.text(
-        `Emirate: ${this.mapEmirate(item.ufCrm7_1743829019488) || "N/A"}`,
-        16,
-        y
-      );
-      y += 8;
-      checkPageBreak();
-      doc.text(`Building: ${item.ufCrm7_1743829187045 || "N/A"}`, 16, y);
-      y += 8;
-      checkPageBreak();
-      doc.text(`Address: ${item.ufCrm7_1743829195831 || "N/A"}`, 16, y);
-      y += 8;
-      checkPageBreak();
-      doc.text(`Property Type: ${propertyType}`, 16, y);
-      y += 8;
-      checkPageBreak();
-      doc.text(
-        `Listing Type: ${
-          this.mapListingType(item.ufCrm7_1743829448289) || "N/A"
-        }`,
-        16,
-        y
-      );
-      y += 8;
-      checkPageBreak();
-      doc.text(
-        `Status: ${this.mapStatus(item.ufCrm7_1743829543608) || "N/A"}`,
-        16,
-        y
-      );
-      y += 8;
-      checkPageBreak();
-      doc.text(`Price: AED ${price}`, 16, y);
-      y += 16;
       checkPageBreak();
 
       // === PROPERTY IMAGES ===
@@ -395,7 +393,8 @@ class ItemTable {
         checkPageBreak();
 
         let col = 0;
-        let imgSize = 50;
+        let maxWidth = 52;
+        let maxHeight = 50;
         let x = 16;
 
         for (const imageObj of item.ufCrm7_1743856030) {
@@ -405,22 +404,51 @@ class ItemTable {
             const imgData = await this.getBase64ImageFromURL(
               imageObj.urlMachine
             );
-            doc.addImage(imgData, "JPEG", x, y, imgSize, imgSize);
+
+            // Create a temporary image to get dimensions
+            const tempImg = new Image();
+            tempImg.src = imgData;
+
+            // Calculate aspect ratio to prevent stretching
+            let imgWidth = maxWidth;
+            let imgHeight = maxHeight;
+
+            if (tempImg.width > 0 && tempImg.height > 0) {
+              const ratio = Math.min(
+                maxWidth / tempImg.width,
+                maxHeight / tempImg.height
+              );
+              imgWidth = tempImg.width * ratio;
+              imgHeight = tempImg.height * ratio;
+            }
+
+            // Center the image in its allocated space
+            const xOffset = x + (maxWidth - imgWidth) / 2;
+            const yOffset = y + (maxHeight - imgHeight) / 2;
+
+            doc.addImage(
+              imgData,
+              "JPEG",
+              xOffset,
+              yOffset,
+              imgWidth,
+              imgHeight
+            );
           } catch (error) {
             console.warn("Failed to load image:", imageObj.urlMachine, error);
           }
 
           col++;
-          x += imgSize + 10;
+          x += maxWidth + 10;
 
           if (col >= 3) {
             col = 0;
             x = 16;
-            y += imgSize + 10;
+            y += maxHeight + 10;
             checkPageBreak();
           }
         }
-        y += imgSize + 10;
+        y += maxHeight + 10;
       }
 
       // === Footer ===
