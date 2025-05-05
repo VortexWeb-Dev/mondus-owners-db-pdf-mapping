@@ -88,6 +88,18 @@ class ItemTable {
     return typeMap[statusId] || "";
   }
 
+  cleanAddress(input) {
+    if (!input) {
+      return "";
+    }
+
+    let address = input.split(/[|;]/)[0].trim();
+
+    address = address.replace(/\d+$/, "").trim();
+
+    return address;
+  }
+
   renderTable(items) {
     const tbody = document.getElementById("itemsTableBody");
     tbody.innerHTML = "";
@@ -102,7 +114,9 @@ class ItemTable {
                   this.mapEmirate(item.ufCrm7_1743829019488) || ""
                 }</td>
                 <td class="px-6 py-4">${item.ufCrm7_1743829187045 || ""}</td>
-                <td class="px-6 py-4">${item.ufCrm7_1743829195831 || ""}</td>
+                <td class="px-6 py-4">${
+                  this.cleanAddress(item.ufCrm7_1743829195831) || ""
+                }</td>
                 <td class="px-6 py-4">${item.ufCrm7_1743829247734 || ""}</td>
                 <td class="px-6 py-4">${
                   this.mapListingType(item.ufCrm7_1743829448289) || ""
@@ -316,7 +330,7 @@ class ItemTable {
       // Using location data from your original content
       const location = `${this.mapEmirate(item.ufCrm7_1743829019488) || ""} - ${
         item.ufCrm7_1743829187045 || ""
-      } - ${item.ufCrm7_1743829195831 || ""}`;
+      } - ${this.cleanAddress(item.ufCrm7_1743829195831) || ""}`;
       doc.text(`${location}`, 16, y);
       y += 8;
       checkPageBreak();
