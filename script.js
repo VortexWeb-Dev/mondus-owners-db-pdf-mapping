@@ -315,8 +315,8 @@ class ItemTable {
       // === Title Section ===
       doc.setFont(undefined, "bold");
       doc.setFontSize(14);
-      doc.text("Secure Investment | Premium Living", 16, y);
-      y += 10;
+      doc.text("Secure Investment | Premium Living | Great ROI ", 10, y);
+      y += 8;
       checkPageBreak();
 
       // Add location
@@ -331,10 +331,56 @@ class ItemTable {
       // Add price
       doc.setFont(undefined, "bold");
       doc.text(`AED ${parseFloat(price)}`, 16, y);
-      y += 16;
+      y += 12;
       checkPageBreak();
 
+      // Website
+      doc.setFont(undefined, "normal");
+      doc.setFontSize(10);
+      //doc.setTextColor(100);  // Light gray for subtle look
+      doc.text("Mondus Properties | https://www.mondusproperties.ae", 10, y);
+      y += 10;
+      checkPageBreak();
+
+      if (item.ufCrm7_1743856030 && item.ufCrm7_1743856030.length > 0) {
+        const maxImageCount = 2;
+        const pageWidth = 210; // A4 width in mm
+        const margin = 10;
+        const availableWidth = pageWidth - 2 * margin; // Width minus left/right margins
+        const imageSpacing = 5; // Small space between images
+        const imageWidth = (availableWidth - imageSpacing) / maxImageCount;
+        const imageHeight = 60; // You can adjust this based on aspect ratio
+        let imageX = margin;
+        const imageY = y;
+      
+        for (let i = 0; i < Math.min(maxImageCount, item.ufCrm7_1743856030.length); i++) {
+          const imageObj = item.ufCrm7_1743856030[i];
+          if (!imageObj.urlMachine) continue;
+      
+          try {
+            const imgData = await this.getBase64ImageFromURL(imageObj.urlMachine);
+            doc.addImage(imgData, "JPEG", imageX, imageY, imageWidth, imageHeight);
+            imageX += imageWidth + imageSpacing;
+          } catch (err) {
+            console.warn("Image failed to load for PDF:", err);
+          }
+        }
+      
+        y += imageHeight + 12; // Move cursor down after images
+        checkPageBreak();
+      }      
+      
+
       // === Property Information ===
+       doc.setFontSize(11);
+      doc.setDrawColor(0);
+      doc.setFillColor(240, 240, 240);
+      doc.rect(14, y, 182, 8, "F");
+      doc.setFont(undefined, "bold");
+      doc.text("PROPERTY INFORMATION", 16, y + 5);
+      y += 15;
+      checkPageBreak();
+
       doc.setFont(undefined, "normal");
       doc.setFontSize(10);
       doc.text(`ID: ${item.id}`, 16, y);
@@ -561,8 +607,6 @@ class ItemTable {
       y += 7;
       doc.text("Phone No: +971521110794", 16, y);
       y += 7;
-      doc.text("Web: www.mondusproperties.ae", 16, y);
-      y += 8;
       checkPageBreak();
 
       // === Disclaimer ===
