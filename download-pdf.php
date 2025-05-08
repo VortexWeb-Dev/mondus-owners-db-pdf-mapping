@@ -151,7 +151,7 @@
         const item = result.result.item;
 
         if (typeof window.jspdf === "undefined") {
-          this.showToast("PDF library not loaded", "error");
+          showToast("PDF library not loaded", "error");
           return;
         }
 
@@ -169,7 +169,7 @@
         // === Headers ===
         if (item.ufCrm7_1743856030?.[0]?.urlMachine) {
           try {
-            const imgData = await this.getBase64ImageFromURL(
+            const imgData = await getBase64ImageFromURL(
               "https://apps.mondus.group/assets/mondus-header.png"
             );
             doc.addImage(imgData, "JPEG", 10, y, 190, 140);
@@ -180,44 +180,38 @@
           }
         }
 
+        const title = item.ufCrm7_1746709619520 || "N/A";
         const propertyType = item.ufCrm7_1743829247734 || "N/A";
         const bedrooms = item.ufCrm7_1743829267783 || "N/A";
         const bathrooms = item.ufCrm7_1743829278192 || "N/A";
         const price = item.ufCrm7_1743829576957 || "N/A";
         const sqft = item.ufCrm7_1743829315467 || "N/A";
+        const description = item.ufCrm7_1746461192 || "N/A";
+        const privateAmenities = item.ufCrm7_1746461204 || [];
 
-        // === PROPERTY INFORMATION ===
-        // doc.setFillColor(240, 240, 240);
-        // doc.rect(14, y, 182, 8, "F");
-        // doc.setFont(undefined, "bold");
-        // doc.text("PROPERTY INFORMATION", 16, y + 5);
-        // y += 15;
-        // checkPageBreak();
-
-        // Add title in the format shown in the image
+        // === Title Section ===
         doc.setFont(undefined, "bold");
         doc.setFontSize(14);
-        doc.text(item.title || "N/A", 16, y);
+        doc.text(title, 16, y);
         y += 10;
         checkPageBreak();
 
-        // Add location with map pin icon
+        // Add location
         doc.setFontSize(12);
-        // Using location data from your original content
-        const location = `${this.mapEmirate(item.ufCrm7_1743829019488) || ""} - ${
+        const location = `${mapEmirate(item.ufCrm7_1743829019488) || ""} - ${
         item.ufCrm7_1743829187045 || ""
-      } - ${item.ufCrm7_1743829195831 || ""}`;
+      } - ${cleanAddress(item.ufCrm7_1743829195831) || ""}`;
         doc.text(`${location}`, 16, y);
         y += 8;
         checkPageBreak();
 
-        // Add price with emphasis
+        // Add price
         doc.setFont(undefined, "bold");
         doc.text(`AED ${parseFloat(price)}`, 16, y);
         y += 16;
         checkPageBreak();
 
-        // Continue with the rest of property details
+        // === Property Information ===
         doc.setFont(undefined, "normal");
         doc.setFontSize(10);
         doc.text(`ID: ${item.id}`, 16, y);
@@ -230,7 +224,7 @@
 
         doc.text(
           `Listing Type: ${
-          this.mapListingType(item.ufCrm7_1743829448289) || "N/A"
+          mapListingType(item.ufCrm7_1743829448289) || "N/A"
         }`,
           16,
           y
@@ -239,14 +233,14 @@
         checkPageBreak();
 
         doc.text(
-          `Status: ${this.mapStatus(item.ufCrm7_1743829543608) || "N/A"}`,
+          `Status: ${mapStatus(item.ufCrm7_1743829543608) || "N/A"}`,
           16,
           y
         );
         y += 16;
         checkPageBreak();
 
-        // === PROPERTY FEATURES ===
+        // === Property Features ===
         doc.setFontSize(11);
         doc.setDrawColor(0);
         doc.setFillColor(240, 240, 240);
@@ -268,12 +262,64 @@
         y += 8;
         checkPageBreak();
 
-        doc.setDrawColor(0);
-        doc.line(16, y, 190, y);
-        y += 8;
+        // === Description ===
+        doc.setFillColor(240, 240, 240);
+        doc.rect(14, y, 182, 8, "F");
+        doc.setFont(undefined, "bold");
+        doc.text("DESCRIPTION", 16, y + 5);
+        y += 15;
         checkPageBreak();
 
-        // === PROPERTY IMAGES ===
+        doc.setFont(undefined, "normal");
+        doc.setFontSize(10);
+        const descriptionLines = doc.splitTextToSize(description, 180);
+        doc.text(descriptionLines, 16, y);
+        y += descriptionLines.length * 7 + 8;
+        checkPageBreak();
+
+        // === Private Amenities ===
+        doc.setFillColor(240, 240, 240);
+        doc.rect(14, y, 182, 8, "F");
+        doc.setFont(undefined, "bold");
+        doc.text("PRIVATE AMENITIES", 16, y + 5);
+        y += 15;
+        checkPageBreak();
+
+        doc.setFont(undefined, "normal");
+
+        const pillPaddingX = 4;
+        const pillPaddingY = 3;
+        const pillMarginX = 4;
+        const pillHeight = 8;
+
+        let startX = 16;
+
+        privateAmenities.forEach((amenity) => {
+          const textWidth = doc.getTextWidth(amenity);
+          const pillWidth = textWidth + pillPaddingX * 2;
+
+          // If pill exceeds page width, wrap to next line
+          if (startX + pillWidth > 190) {
+            startX = 16;
+            y += pillHeight + pillMarginX;
+            checkPageBreak();
+          }
+
+          // Draw pill background
+          doc.setFillColor(220, 220, 220); // light gray
+          doc.roundedRect(startX, y, pillWidth, pillHeight, 3, 3, "F");
+
+          // Draw pill text
+          doc.setTextColor(50, 50, 50);
+          doc.text(amenity, startX + pillPaddingX, y + 6);
+
+          startX += pillWidth + pillMarginX;
+        });
+
+        // Add extra spacing after pills
+        y += pillHeight + 8;
+
+        // === Property Images ===
         if (item.ufCrm7_1743856030 && item.ufCrm7_1743856030.length > 0) {
           doc.setFillColor(240, 240, 240);
           doc.rect(14, y, 182, 8, "F");
@@ -291,15 +337,13 @@
             if (!imageObj.urlMachine) continue;
 
             try {
-              const imgData = await this.getBase64ImageFromURL(
+              const imgData = await getBase64ImageFromURL(
                 imageObj.urlMachine
               );
 
-              // Create a temporary image to get dimensions
               const tempImg = new Image();
               tempImg.src = imgData;
 
-              // Calculate aspect ratio to prevent stretching
               let imgWidth = maxWidth;
               let imgHeight = maxHeight;
 
@@ -312,7 +356,6 @@
                 imgHeight = tempImg.height * ratio;
               }
 
-              // Center the image in its allocated space
               const xOffset = x + (maxWidth - imgWidth) / 2;
               const yOffset = y + (maxHeight - imgHeight) / 2;
 
@@ -341,6 +384,74 @@
           y += maxHeight + 10;
         }
 
+        // === Contact Information ===
+        doc.setFillColor(240, 240, 240);
+        doc.rect(14, y, 182, 8, "F");
+        doc.setFont(undefined, "bold");
+        doc.text("CONTACT INFORMATION", 16, y + 5);
+        y += 15;
+        checkPageBreak();
+
+        doc.setFont(undefined, "normal");
+        doc.setFontSize(10);
+        doc.text(
+          "For viewing and more information, please contact our property specialist:",
+          16,
+          y
+        );
+        y += 7;
+        doc.text("Mohammed Fayaz", 16, y);
+        y += 7;
+        doc.text("m: 971509701507", 16, y);
+        y += 7;
+        doc.text("e: fayaz@mondusgroup.com", 16, y);
+        y += 7;
+        doc.text("Mondus Properties | https://mondusproperties.ae/", 16, y);
+        y += 8;
+        checkPageBreak();
+
+        // === About Mondus Properties ===
+        doc.setFillColor(240, 240, 240);
+        doc.rect(14, y, 182, 8, "F");
+        doc.setFont(undefined, "bold");
+        doc.text("ABOUT MONDUS PROPERTIES", 16, y + 5);
+        y += 15;
+        checkPageBreak();
+
+        doc.setFont(undefined, "normal");
+        const aboutText =
+          "Mondus Properties is a leading property brokerage, investment, and consultancy firm with a dedicated team of international experts. We provide tailored property solutions across commercial, residential, retail, and offplan sectors, backed by expertise in market trends, negotiation, and management.";
+        const aboutLines = doc.splitTextToSize(aboutText, 180);
+        doc.text(aboutLines, 16, y);
+        y += aboutLines.length * 7 + 8;
+        checkPageBreak();
+
+        doc.text("Mondus Properties Real Estate Brokers LLC", 16, y);
+        y += 7;
+        doc.text("RERA ORN: 123456", 16, y);
+        y += 7;
+        doc.text(
+          "Address: 2402 Mondus Group Iris Bay - Business Bay - Dubai",
+          16,
+          y
+        );
+        y += 7;
+        doc.text("Phone No: +971521110794", 16, y);
+        y += 7;
+        doc.text("Web: www.mondusproperties.ae", 16, y);
+        y += 8;
+        checkPageBreak();
+
+        // === Disclaimer ===
+        doc.setFontSize(8);
+        doc.text(
+          "Disclaimer: Prices May Vary Based on Unit Location, Size, and Availability.",
+          16,
+          y
+        );
+        y += 8;
+        checkPageBreak();
+
         // === Footer ===
         doc.setFontSize(8);
         doc.text(
@@ -352,17 +463,25 @@
         );
 
         doc.save(`Mondus_Property_${id}_${new Date().toISOString()}.pdf`);
-        // this.showToast("PDF downloaded successfully");
-        button.innerHTML = "Download PDF";
-        button.disabled = false;
-        button.classList.remove("cursor-not-allowed");
+        // showToast("PDF downloaded successfully");
+
       } catch (error) {
         console.error("Error generating PDF:", error);
-        // this.showToast("Failed to download PDF");
-        button.innerHTML = "Download PDF";
-        button.disabled = false;
-        button.classList.remove("cursor-not-allowed");
+        // showToast("Failed to download PDF");
+
       }
+    }
+
+    function cleanAddress(input) {
+      if (!input) {
+        return "";
+      }
+
+      let address = input.split(/[|;]/)[0].trim();
+
+      address = address.replace(/\d+$/, "").trim();
+
+      return address;
     }
 
     function showError(message) {

@@ -109,7 +109,9 @@ class ItemTable {
       tr.className = "bg-white border-b hover:bg-gray-50";
       tr.innerHTML = `
                 <td class="px-6 py-4">${index + 1}</td>
-                <td class="px-6 py-4">${item.title}</td>
+                <td class="px-6 py-4">${
+                  item.ufCrm7_1746709619520 || item.title
+                }</td>
                 <td class="px-6 py-4">${
                   this.mapEmirate(item.ufCrm7_1743829019488) || ""
                 }</td>
@@ -304,6 +306,7 @@ class ItemTable {
         }
       }
 
+      const title = item.ufCrm7_1746709619520 || "N/A";
       const propertyType = item.ufCrm7_1743829247734 || "N/A";
       const bedrooms = item.ufCrm7_1743829267783 || "N/A";
       const bathrooms = item.ufCrm7_1743829278192 || "N/A";
@@ -315,7 +318,7 @@ class ItemTable {
       // === Title Section ===
       doc.setFont(undefined, "bold");
       doc.setFontSize(14);
-      doc.text("Secure Investment | Premium Living", 16, y);
+      doc.text(title, 16, y);
       y += 10;
       checkPageBreak();
 
